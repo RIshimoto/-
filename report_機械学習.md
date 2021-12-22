@@ -1,3 +1,56 @@
+# 線形回帰モデル
+## 1.要点まとめ
+回帰問題（ある入力から出力を予測する問題）を**直線で**予測する、教師あり機械学習モデルの一つ。  
+回帰で扱うデータは、  
+入力が、m次元のベクトル、</br>
+　　<img src="https://latex.codecogs.com/svg.image?\boldsymbol{x}=\left(x_1,x_2,...,x_m\right)^T\in&space;\boldsymbol{R}^m" title="\boldsymbol{x}=\left(x_1,x_2,...,x_m\right)^T\in \boldsymbol{R}^m" /></br>
+出力が、スカラー値である。</br>
+　　<img src="https://latex.codecogs.com/svg.image?y\in&space;\boldsymbol{R}^1" title="y\in \boldsymbol{R}^1" /></br>
+この入力xが1次元の場合を**単回帰**、2次元以上を**重回帰**という。</br>
+  
+以下のように入力xに対し、</br>
+m次元パラメータwと線形結合（入力とパラメータの内積）したものを予測値として出力する。</br>
+　　<img src="https://latex.codecogs.com/svg.image?\widehat{y}=&space;\boldsymbol{w^{T}}\boldsymbol{x}&plus;x_{0}=\sum_{j}^{m}w_{j}x_{j}&plus;x_{0}" title="\widehat{y}= \boldsymbol{w^{T}}\boldsymbol{x}&plus;x_{0}=\sum_{j}^{m}w_{j}x_{j}&plus;x_{0}" /></br>
+この予測値と教師データから、
+このモデルのパラメータを学習データを用いて、**最小二乗法**により推定していく。</br>
+
+ただし、データには回帰直線に誤差が加わり観測されていると仮定し、</br>
+誤差項εを含めた式になる。</br> 
+　　<img src="https://latex.codecogs.com/svg.image?\widehat{y}&space;=&space;\boldsymbol{w^{T}}\boldsymbol{x}&space;&plus;&space;x_{0}&plus;&space;\varepsilon"> 
+
+## 2.実装演習
+ボストンデータハウジングのデータを用いて住宅の価格を予測を行う。</br>
+
+まずは線形単回帰分析について。  
+部屋の数のみから価格を予測する。</br>
+
+まず、平均室数を説明変数とし、
+```code
+# 説明変数
+data = df.loc[:, ['RM']].values
+```
+住宅の価格がいくらになるかを目的変数とする。
+```code
+# 目的変数
+target = df.loc[:, 'PRICE'].values
+```
+それらのデータに対し、パラメータを調整した線形回帰モデルを構築する。
+
+```code
+# オブジェクト生成
+model = LinearRegression()
+# fit関数でパラメータ推定
+model.fit(data, target)
+```
+
+このモデルに未知データを与え予測を行う。</br>
+```code
+#予測
+model.predict([[10]])
+```
+実行結果は、部屋数が10個の場合、値段は56.35と出力される。</br>
+<img width="151" alt="image" src="https://user-images.githubusercontent.com/57135683/147052855-ccc234a2-cc89-4c66-bac4-b3526b46cf78.png">
+
 # 主成分分析
 ## 1.要点まとめ
 教師なし学習の一種であり、次元圧縮の手法。</br>
@@ -8,26 +61,26 @@
 圧縮した際の情報の量を分散ととらえ、線形変換後の分散が最大となるように射影軸を探索する。</br>
 
 学習データを</br>
-　<img src="https://latex.codecogs.com/gif.latex?X_i&space;=&space;\left(&space;x_{i1},&space;x_{i2},&space;...,&space;x_{im}&space;\right)"></br>
+　<img src="https://latex.codecogs.com/svg.image?X_i&space;=&space;\left(&space;x_{i1},&space;x_{i2},&space;...,&space;x_{im}&space;\right)"></br>
 と表現すると、</br>
 データ行列は</br>
-　<img src="https://latex.codecogs.com/gif.latex?\bar{X}&space;=&space;\left(&space;x_{i1}-\bar{x},&space;x_{i2}-\bar{x}&space;,&space;...,&space;x_{im}-\bar{x}&space;\right)^T">  </br>
+　<img src="https://latex.codecogs.com/svg.image?\bar{X}&space;=&space;\left(&space;x_{i1}-\bar{x},&space;x_{i2}-\bar{x}&space;,&space;...,&space;x_{im}-\bar{x}&space;\right)^T">  </br>
 となり、このn個のデータをaという主成分で変換してあげたものを考える。</br>
 変換後のベクトルは</br>
-　<img src="https://latex.codecogs.com/gif.latex?s_j&space;=&space;\bar{X}a_j">  </br>
+　<img src="https://latex.codecogs.com/svg.image?s_j&space;=&space;\bar{X}a_j">  </br>
 となり、この分散が最大となるものを求める。</br>
-<img src="https://latex.codecogs.com/gif.latex?Var(s_j)&space;=&space;\frac{1}{n}s_{j}^Ts_j&space;=&space;\frac{1}{n}\left(&space;\bar{X}a_j&space;\right&space;)\left(&space;\bar{X}a_j&space;\right&space;)^T&space;=&space;a_j^TVar(\bar{X})a_j"></br>
+<img src="https://latex.codecogs.com/svg.image?Var(s_j)&space;=&space;\frac{1}{n}s_{j}^Ts_j&space;=&space;\frac{1}{n}\left(&space;\bar{X}a_j&space;\right&space;)\left(&space;\bar{X}a_j&space;\right&space;)^T&space;=&space;a_j^TVar(\bar{X})a_j"></br>
 
 制約条件</br>
-　<img src="https://latex.codecogs.com/gif.latex?a_j^Ta_j&space;=&space;1"></br>
+　<img src="https://latex.codecogs.com/svg.image?a_j^Ta_j&space;=&space;1"></br>
 を考慮すると、ラグランジュ関数は</br>
-　<img src="https://latex.codecogs.com/gif.latex?E(a_j)&space;=&space;a_j^TVar(\bar{X})a_j&space;-&space;\lambda&space;\left(&space;a_j^Ta_j&space;-&space;1\right&space;)"></br>
+　<img src="https://latex.codecogs.com/svg.image?E(a_j)&space;=&space;a_j^TVar(\bar{X})a_j&space;-&space;\lambda&space;\left(&space;a_j^Ta_j&space;-&space;1\right&space;)"></br>
 となり、これを微分して最適解を求めると  </br>
-　<img src="https://latex.codecogs.com/gif.latex?Var(\bar{X})a_j&space;=&space;\lambda&space;a_j"></br>
+　<img src="https://latex.codecogs.com/svg.image?Var(\bar{X})a_j&space;=&space;\lambda&space;a_j"></br>
 となる。</br>
 これより、データ行列の共分散行列の固有ベクトルが分散を最大にする軸になるということになる。</br>
 射影後の分散は、</br>
-　<img src="https://latex.codecogs.com/gif.latex?Var(s_j)&space;=&space;a_1^TVar(\bar{X})a_1&space;=&space;\lambda_1&space;a_1^Ta_1&space;=&space;\lambda_1"> </br>
+　<img src="https://latex.codecogs.com/svg.image?Var(s_j)&space;=&space;a_1^TVar(\bar{X})a_1&space;=&space;\lambda_1&space;a_1^Ta_1&space;=&space;\lambda_1"> </br>
 より、固有値がそのまま射影先の分散になる。</br>
 
 分散共分散行列は正定値対称行列なので固有値は必ず0以上・固有値ベクトルは直交なので、</br>
@@ -37,11 +90,11 @@
 第1～元次元文の主成分の分散は元の分散に一致し、</br>
 第k主成分の分散は主成分に対応する固有値に一致しているため、</br>
 全分散の分散に対する第k主成分の分散の割合が寄与率となる。 </br>
-　<img src="https://latex.codecogs.com/gif.latex?c_k&space;=&space;\frac{\lambda_k}{\sum_{i=1}^{m}&space;\lambda_i}">  </br>
+　<img src="https://latex.codecogs.com/svg.image?c_k&space;=&space;\frac{\lambda_k}{\sum_{i=1}^{m}&space;\lambda_i}">  </br>
 
 第1-k主成分まで圧縮した際の情報損失の割合を示す累積寄与率といい、</br>
 主成分の総分散に対する第1~k主成分の分散の割合となる。</br>
-　<img src="https://latex.codecogs.com/gif.latex?c_k&space;=&space;\frac{\sum_{j=1}^{k}&space;\lambda_j}{\sum_{i=1}^{m}&space;\lambda_i}"></br>
+　<img src="https://latex.codecogs.com/svg.image?c_k&space;=&space;\frac{\sum_{j=1}^{k}&space;\lambda_j}{\sum_{i=1}^{m}&space;\lambda_i}"></br>
 
 ## 2.実装演習
 乳がんデータの分析を行う。</br>
