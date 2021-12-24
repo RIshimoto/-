@@ -1,4 +1,6 @@
-# 1.勾配消失問題
+# 1.勾配消失問題  
+<details><summary>クリックすると展開されます</summary>
+  
 ## 1-1.要点まとめ
 誤差逆伝播法は階層が進んでいくにつれて、勾配がどんどん緩やかになっていく。  
 そのため、勾配降下法による、更新では下位パラメータはほとんど変わらず、訓練は最適値に収束しなくなる。  
@@ -25,10 +27,10 @@
     
     **Xavier**：</br>
     　正規分布を前のレイヤーのノード数の平方根で割った値。</br>
-      活性化関数がReLU関数、シグモイド関数、双曲線正接関数に用いられる。</br>
+    　活性化関数がReLU関数、シグモイド関数、双曲線正接関数に用いられる。</br>
     **He**：</br>
     　重みの要素を、前の層のノード数の平方根で除算した値に対し、√2を掛け合わせた値。</br>
-      活性化関数がReLU関数に用いられる。</br>
+    　活性化関数がReLU関数に用いられる。</br>
   
   * **バッチ正規化**
     
@@ -39,9 +41,9 @@
       <img width="353" alt="image" src="https://user-images.githubusercontent.com/57135683/147325127-a31a8d7f-eaf9-4212-a050-669a28c9ec92.png">
 
 
-    
 
 ## 1-2.確認問題
+
 > 連鎖律の原理を使い、dz/dxを求めよ。</br>　<img src="https://latex.codecogs.com/svg.image?\begin{align*}z&=t^2\\t&=x&plus;y\end{align*}&space;" title="\begin{align*}z&=t^2\\t&=x+y\end{align*} " />
 
 　<img src="https://latex.codecogs.com/svg.image?\begin{align*}\frac{\mathrm{d}&space;z}{\mathrm{d}&space;x}&=\frac{\mathrm{d}z}{\mathrm{d}t}\frac{\mathrm{d}t}{\mathrm{d}x}\\\frac{\mathrm{d}&space;z}{\mathrm{d}&space;t}&=2t\\\frac{\mathrm{d}&space;x}{\mathrm{d}&space;t}&=1\end{align*}&space;" title="\begin{align*}\frac{\mathrm{d} z}{\mathrm{d} x}&=\frac{\mathrm{d}z}{\mathrm{d}t}\frac{\mathrm{d}t}{\mathrm{d}x}\\\frac{\mathrm{d} z}{\mathrm{d} t}&=2t\\\frac{\mathrm{d} x}{\mathrm{d} t}&=1\end{align*} " /></br>
@@ -50,27 +52,103 @@
  
 　<img src="https://latex.codecogs.com/svg.image?\begin{align*}\frac{\mathrm{d}&space;z}{\mathrm{d}&space;x}&=2t\cdot1\\&space;&=2t\\&space;&=2\left(x&plus;y\right)\end{align*}&space;" title="\begin{align*}\frac{\mathrm{d} z}{\mathrm{d} x}&=2t\cdot1\\ &=2t\\ &=2\left(x+y\right)\end{align*} " />
  
- 
+</br>
+
 > シグモイド関数を微分したとき、入力値が0の時に最大値をとる。</br>
 > その値として正しいもの。
 
   0.25
 
+</br>
 
 > 重みの初期値に0を設定すると、どのような問題が発生するか。</br>
 
 　すべての重みの値が均一に更新されるため、多数の重みをもつ意味がなくなる。
+ 
+</br>
 
 > 一般的に考えられるバッチ正規化の効果を２点あげよ。</br>
 
 - 過学習が起きづらくなる。
 - 学習が安定し、学習スピードが上がる。
 
+</br>
+
 ## 1-3.実装演習
+
 ```code
 
 ```
+</details>
+
 # 2.学習率最適化手法
+<details><summary>クリックすると展開されます</summary>
+  
+## 2-1.要点のまとめ
+### 2-1-1.モメンタム
+　誤差をパラメータで微分したものと学習率の積を減算した後、</br>
+　現在の重みに前回の重みを減算した値と慣性の積を加算する。</br>
+ 
+　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}V_t&space;&=&space;\mu&space;V_{t-1}-\epsilon&space;\nabla&space;E\\\boldsymbol{w}^{(t&plus;1)}&=\boldsymbol{w}^{(t)}&plus;V_t\end{align*}&space;" title="\begin{align*}V_t &= \mu V_{t-1}-\epsilon \nabla E\\\boldsymbol{w}^{(t+1)}&=\boldsymbol{w}^{(t)}+V_t\end{align*} " /></br>
+　　μ:慣性</br>
+
+</br>
+
+　**メリット**
+   - 局所最適解にはならず、大域的最適解になる。
+   - 谷間についてから最も低い位置（最適値）にいくまでの時間が早い。
+</br>
+
+### 2-1-2.AdaGrad
+　誤差をパラメータで微分したものと再定義した学習率の積を減算する。</br>
+ 
+　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}h_0&=\theta&space;\\h_t&=h_{t-1}&plus;(\nabla&space;E)^2\\\boldsymbol{w}^{(t&plus;1)}&=\boldsymbol{w}^{t}-\epsilon&space;\frac{1}{\sqrt{h_t}&plus;\theta}\nabla&space;E\end{align*}&space;" title="\begin{align*}h_0&=\theta \\h_t&=h_{t-1}+(\nabla E)^2\\\boldsymbol{w}^{(t+1)}&=\boldsymbol{w}^{t}-\epsilon \frac{1}{\sqrt{h_t}+\theta}\nabla E\end{align*} " /><br>
+
+
+　**メリット**  
+ 　　勾配の緩やかな斜面に対して、最適値に近づける。  
+
+　**課題**  
+ 　　学習率が徐々に小さくなるので、**鞍点問題**を引き起こすことがあった。  
+</br>
+
+### 2-1-3.RMSProp
+　誤差をパラメータで微分したものと再定義した学習率の積を減算する。</br>
+ 
+　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}h_t&=\alpha&space;h_{t-1}&plus;\left(1-\alpha\right)\left(\nabla&space;E\right)^2\\\boldsymbol{w}^{(t&plus;1)}&=\boldsymbol{w}^{(t)}-\epsilon&space;\frac{1}{\sqrt{h_t}&plus;\theta}\nabla&space;E\end{align*}&space;" title="\begin{align*}h_t&=\alpha h_{t-1}+\left(1-\alpha\right)\left(\nabla E\right)^2\\\boldsymbol{w}^{(t+1)}&=\boldsymbol{w}^{(t)}-\epsilon \frac{1}{\sqrt{h_t}+\theta}\nabla E\end{align*} " /></br>
+
+</br>
+
+　**メリット**
+   - 局所最適解にはならず、大域的最適解になる。
+   - ハイパーパラメータの調整が必要な場合が少ない。
+</br>
+
+### 2-1-4.Adam
+  * モメンタムの、過去の勾配の指数関数的減衰平均。
+  * RMSPropの、過去の勾配の２乗の指数関数的減数平均。  
+上記をそれぞれ孕んだ最適化アルゴリズム。</br>
+
+　**メリット**  
+　　モメンタムおよびRMSPropのメリットを孕んでいる。</br>
+</br>
+
+## 2-2.確認問題
+
+> モメンタム・AdaGrad・RMSPropの特徴をそれぞれ簡潔に説明せよ。
+
+  - モメンタム：前回の学習量を用いて学習するため、加速がつくと一気に学習が進む。
+  - AdaGrad：勾配がゆるやかなときにうまくいきやすいが、大域最適解にたどり着きづらい。
+  - RMSProp：欠点を改良したAdaGrad
+
+</br>
+
+## 2-3.実装演習
+```code
+```
+
+</details>
+
 # 3.過学習
 # 4.畳み込みニューラルネットワークの概念
 # 5.最新のCNN
