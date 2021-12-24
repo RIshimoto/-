@@ -1,15 +1,18 @@
 # 1.入力層～中間層
 ## 1-1.要点まとめ
 <img width="407" alt="image" src="https://user-images.githubusercontent.com/57135683/147182866-6eee92d4-47b9-4799-9a53-bb3a0155c481.png">
-入力に重みを付けて混ぜ合わせた結果を、活性化関数で処理して出力に変換する</br>
+入力に重みを付けて混ぜ合わせた結果を、活性化関数で処理して出力に変換する。</br>
+</br>
 それぞれの入力を</br>
-　　<img src="https://latex.codecogs.com/svg.image?\boldsymbol{x}&space;=&space;\begin{bmatrix}x_1&space;\\...&space;\\x_l\end{bmatrix}&space;" title="\boldsymbol{x} = \begin{bmatrix}x_1 \\... \\x_l\end{bmatrix} " />
+　　　<img src="https://latex.codecogs.com/svg.image?\boldsymbol{x}&space;=&space;\begin{bmatrix}x_1&space;\\...&space;\\x_l\end{bmatrix}&space;" title="\boldsymbol{x} = \begin{bmatrix}x_1 \\... \\x_l\end{bmatrix} " /></br>
 重みを</br>
-　　<img src="https://latex.codecogs.com/svg.image?\boldsymbol{W}&space;=&space;\begin{bmatrix}w_1&space;\\...&space;\\w_l\end{bmatrix}&space;" title="\boldsymbol{W} = \begin{bmatrix}w_1 \\... \\w_l\end{bmatrix} " />
+　　　<img src="https://latex.codecogs.com/svg.image?\boldsymbol{W}&space;=&space;\begin{bmatrix}w_1&space;\\...&space;\\w_l\end{bmatrix}&space;" title="\boldsymbol{W} = \begin{bmatrix}w_1 \\... \\w_l\end{bmatrix} " />
 とし、それにバイアスを加えて</br>
-　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}u&=w_1x_1&plus;w_2x_2&plus;w_3x_3&plus;w_4x_4&plus;b\\&=\boldsymbol{W}\boldsymbol{x}&plus;b\end{align*}&space;" title="\begin{align*}u&=w_1x_1+w_2x_2+w_3x_3+w_4x_4+b\\&=\boldsymbol{W}\boldsymbol{x}+b\end{align*} " /></br>
+　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}u&=w_1x_1&plus;w_2x_2&plus;w_3x_3&plus;w_4x_4&plus;b\\&=\boldsymbol{W}\boldsymbol{x}&plus;b\end{align*}&space;" title="\begin{align*}u&=w_1x_1+w_2x_2+w_3x_3+w_4x_4+b\\&=\boldsymbol{W}\boldsymbol{x}+b\end{align*} " />
 これを総入力といい、これに活性化関数を通すことで出力が得られる。</br>
-その出力は、次のニューラルネットワークの入力として使われる。</br>
+</br>
+この出力は、次のニューラルネットワークの入力として使われる。</br>
+</br>
 いわば、入力層と中間層が一つのパーツとみなせ、</br>
 このパーツが何層も連なっているのが、深層ディープニューラルネットワークの仕組みになっている。</br>
 
@@ -62,39 +65,40 @@ print_vec("中間層出力", z)
 ニューラルネットワークにおいて、次の層への出力の大きさを決める**非線形の関数**。</br>
 入力値の値によって、次の層への信号のON/OFFや強弱を定める働きを持つ。</br>
 線形な処理を非線形な活性化関数を通すことで、よりバラエティのある出力を作り出すことができる。</br>
+</br>
 例として、中間層用の活性化関数は、</br>
-- ReLu関数
-- シグモイド（ロジスティック）関数
-- ステップ関数
+- ReLu関数  
+    <img width="209" alt="image" src="https://user-images.githubusercontent.com/57135683/147189057-c5b3b14a-e6df-423c-a820-a392b80aaf16.png"></br>
+    今の使われている関数。</br>
+    勾配消失問題とスパース化に貢献することで良い成果をもたらしている。</br>
+    </br>
+- シグモイド（ロジスティック）関数  
+    <img width="224" alt="image" src="https://user-images.githubusercontent.com/57135683/147189024-f5233382-2373-497c-98a6-f28856fda14e.png">  
+    0～1の間を緩やかに変化する関数で、信号の強弱を伝えられるようになり、予想ニューラルネットワークの普及のきっかけとなった。</br>
+    層が深くなると勾配消失が問題となる。</br>
+    </br>
+- ステップ関数  
+    <img width="223" alt="image" src="https://user-images.githubusercontent.com/57135683/147189005-1f1e0ecd-adcf-47f2-8c61-163930d8e203.png">  
+    閾値を超えたら1を出力する。パーセプトロンで利用された関数だが、線形分離可能なものしか学習できず、今は使われていない。</br>
+    </br>
+等がある。</br>
 
-### ステップ関数
-<img width="223" alt="image" src="https://user-images.githubusercontent.com/57135683/147189005-1f1e0ecd-adcf-47f2-8c61-163930d8e203.png">  
-閾値を超えたら1を出力する。パーセプトロンで利用された関数だが、線形分離可能なものしか学習できず、今は使われていない。</br>
-
-### シグモイド関数
-<img width="224" alt="image" src="https://user-images.githubusercontent.com/57135683/147189024-f5233382-2373-497c-98a6-f28856fda14e.png">  
-0～1の間を緩やかに変化する関数で、信号の強弱を伝えられるようになり、予想ニューラルネットワークの普及のきっかけとなった。</br>
-層が深くなると勾配消失が問題となる。</br>
-
-### ReLu関数
-<img width="209" alt="image" src="https://user-images.githubusercontent.com/57135683/147189057-c5b3b14a-e6df-423c-a820-a392b80aaf16.png">  
-今の使われている関数。</br>
-勾配消失問題とスパース化に貢献することで良い成果をもたらしている。</br>
 
 ## 2-2.確認テスト
 > 線形と非線形の違いについて図を書いて簡易に説明せよ。
-- 線形
-<img width="284" alt="image" src="https://user-images.githubusercontent.com/57135683/147187450-399e6f0e-a9a7-4f31-a0ed-74ed2ca8ab04.png"></br>
-線形は比例関係を満たす。
-数学的な特徴では、
-  - 加法性：f(x+y) = f(x) + f(y)
-  - 斉次性：f(kx) = kf(x)
-を満たす。
-
-- 非線形
-<img width="277" alt="image" src="https://user-images.githubusercontent.com/57135683/147187685-72e27ca0-fb63-4da3-91b9-514a01e99323.png"></br>
-非線形は比例関係を満たさない。
-数学的な特徴では、加法性、斉次性を満たさない。
+- 線形  
+    <img width="284" alt="image" src="https://user-images.githubusercontent.com/57135683/147187450-399e6f0e-a9a7-4f31-a0ed-74ed2ca8ab04.png"></br>
+    線形は比例関係を満たす。</br>
+    数学的な特徴では、
+    - 加法性：f(x+y) = f(x) + f(y)
+    - 斉次性：f(kx) = kf(x) 
+    を満たす。</br>
+    
+- 非線形  
+    <img width="277" alt="image" src="https://user-images.githubusercontent.com/57135683/147187685-72e27ca0-fb63-4da3-91b9-514a01e99323.png"></br>
+    非線形は比例関係を満たさない。</br>
+    数学的な特徴では、加法性、斉次性を満たさない。</br>
+</br>
 
 > 配布されたソースコードより該当する箇所（z=f(u)）を抜き出せ。
 ```code
