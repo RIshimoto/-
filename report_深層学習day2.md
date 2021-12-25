@@ -84,6 +84,9 @@
 ```code
 
 ```
+
+</br>
+
 </details>
 
 # 2.学習率最適化手法
@@ -153,6 +156,8 @@
 ```code
 ```
 
+</br>
+
 </details>
 
 # 3.過学習
@@ -173,13 +178,14 @@
     　p=1の場合、L1正則化（ラッソ回帰）</br>
     　p=2の場合、L2正則化（リッジ回帰）</br>
       
- </br>
+</br>
 
 ### 3-1-2.　ドロップアウト
 　ランダムにノードを削除して学習させること。</br>
 　<img width="155" alt="image" src="https://user-images.githubusercontent.com/57135683/147377460-c3851725-08f4-40fe-b6b2-e431acec7afe.png"></br>
 　メリットとして、データ量を変化させずに、異なるモデルを学習させていると解釈できる。　　　　　
 
+</br>
 
 ## 3-2.確認問題・例題
 > <img width="395" alt="image" src="https://user-images.githubusercontent.com/57135683/147377385-30f6c5e6-17ff-45b7-ba4d-ff973217a071.png">
@@ -272,6 +278,7 @@ CNNの構成は以下の通り。</br>
 ```code
 ```
 
+</br>
 </details>
 
 # 5.最新のCNN
