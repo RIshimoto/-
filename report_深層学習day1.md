@@ -425,7 +425,7 @@ for dataset in random_datasets:
 　∇Eを求める際に数値微分を用いると、負荷が大きいため、誤差逆伝播法を利用する。</br>
  
 　逆伝播法とは、算出された誤差を、出力側から順に微分し、前の層前の層へと伝播させる方法。</br>
-　最小限の計算で各パラメータでの微分値を解析的に計算する手法。</br>
+　最小限の計算で各パラメータでの微分値を解析的に計算できる。</br>
 　<img width="355" alt="image" src="https://user-images.githubusercontent.com/57135683/147216595-ae9427d5-d882-49f8-ad88-fd0d1bbf5c59.png"></br>
 
 
