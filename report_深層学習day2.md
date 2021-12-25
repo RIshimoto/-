@@ -31,7 +31,7 @@
     
        **Xavier**：</br>
         　正規分布を前のレイヤーのノード数の平方根で割った値。</br>
-    　     活性化関数がReLU関数、シグモイド関数、双曲線正接関数に用いられる。</br>
+        　活性化関数がReLU関数、シグモイド関数、双曲線正接関数に用いられる。</br>
         **He**：</br>
     　     重みの要素を、前の層のノード数の平方根で除算した値に対し、√2を掛け合わせた値。</br>
     　     活性化関数がReLU関数に用いられる。</br>
@@ -157,8 +157,39 @@
 
 # 3.過学習
 ## 3-1.要点のまとめ
-## 3-2.確認問題
+### 3-1-1.L1正則化、L2正則化
+  - **過学習の原因**  
+    学習を進めると、重みにバラつきが出る。
+    重みが大きすぎる値をとることで、過学習が発生することがある。
+
+  - **過学習の解決策**   
+    誤差に対して、正則化項を加算することで、重みを制約する。</br>  
+    誤差関数に、pノルムを加える。</br>
+    
+    
+    　<img src="https://latex.codecogs.com/svg.image?\begin{align*}&E_n\left(\boldsymbol{w}\right)&plus;\frac{1}{p}\lambda\left\|\boldsymbol{x}\right\|_p\\&\left\|\boldsymbol{x}\right\|_p&space;=&space;\left(\left|x_1\right|^p&plus;...&plus;\left|x_n\right|^p\right)^{\frac{1}{p}}\end{align*}&space;" title="\begin{align*}&E_n\left(\boldsymbol{w}\right)+\frac{1}{p}\lambda\left\|\boldsymbol{x}\right\|_p\\&\left\|\boldsymbol{x}\right\|_p = \left(\left|x_1\right|^p+...+\left|x_n\right|^p\right)^{\frac{1}{p}}\end{align*} " /></br>
+    　p=1の場合、L1正則化（ラッソ回帰）</br>
+    　p=2の場合、L2正則化（リッジ回帰）</br>
+
+
+### 3-1-2.ドロップアウト
+　ランダムにノードを削除して学習させること。</br>
+　<img width="155" alt="image" src="https://user-images.githubusercontent.com/57135683/147377460-c3851725-08f4-40fe-b6b2-e431acec7afe.png"></br>
+　メリットとして、データ量を変化させずに、異なるモデルを学習させていると解釈できる。　　　　　
+
+
+## 3-2.確認問題・例題
+> <img width="395" alt="image" src="https://user-images.githubusercontent.com/57135683/147377385-30f6c5e6-17ff-45b7-ba4d-ff973217a071.png">
+
+　d
+
+> <img width="350" alt="image" src="https://user-images.githubusercontent.com/57135683/147377391-60c99a22-34b7-4799-8f79-01a73a40508b.png">
+
+　右
+
 ## 3-3.実装演習
+```code
+```
 
 # 4.畳み込みニューラルネットワークの概念
 # 5.最新のCNN
