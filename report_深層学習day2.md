@@ -192,4 +192,29 @@
 ```
 
 # 4.畳み込みニューラルネットワークの概念
+
 # 5.最新のCNN
+<details><summary>クリックすると展開されます</summary>
+  
+## 5-1.要点のまとめ
+### AlexNet
+　５層の畳み込みそうおよびプーリング層など、それに続く３層の全結合層から構成される。</br>
+　<img width="298" alt="image" src="https://user-images.githubusercontent.com/57135683/147377661-27e0269b-b21a-4c4c-b7d1-9cec37a4bb9d.png"></br>
+　過学習を防ぐために、サイズ4096の全結合層の出力にドロップアウトを使用している。 
+  
+　CNNから全結合層へ移行する処理は以下の通り。
+  - Fratten  
+    すべての値を横一列に並び変える。
+    
+  - GolbalMaxPooling  
+    各チャンネルの一番大きいものを使う。
+
+  - GolbalAvgPooling  
+    各チャンネルの一番平均を使う。
+
+  </br>
+  
+## 5-2.確認問題
+## 5-3.実装演習
+
+</details>
