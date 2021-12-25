@@ -156,8 +156,10 @@
 </details>
 
 # 3.過学習
+<details><summary>クリックすると展開されます</summary>
+  
 ## 3-1.要点のまとめ
-### 3-1-1.L1正則化、L2正則化
+### 3-1-1.　L1正則化、L2正則化
   - **過学習の原因**  
     学習を進めると、重みにバラつきが出る。
     重みが大きすぎる値をとることで、過学習が発生することがある。
@@ -170,9 +172,10 @@
     　<img src="https://latex.codecogs.com/svg.image?\begin{align*}&E_n\left(\boldsymbol{w}\right)&plus;\frac{1}{p}\lambda\left\|\boldsymbol{x}\right\|_p\\&\left\|\boldsymbol{x}\right\|_p&space;=&space;\left(\left|x_1\right|^p&plus;...&plus;\left|x_n\right|^p\right)^{\frac{1}{p}}\end{align*}&space;" title="\begin{align*}&E_n\left(\boldsymbol{w}\right)+\frac{1}{p}\lambda\left\|\boldsymbol{x}\right\|_p\\&\left\|\boldsymbol{x}\right\|_p = \left(\left|x_1\right|^p+...+\left|x_n\right|^p\right)^{\frac{1}{p}}\end{align*} " /></br>
     　p=1の場合、L1正則化（ラッソ回帰）</br>
     　p=2の場合、L2正則化（リッジ回帰）</br>
+      
+ </br>
 
-
-### 3-1-2.ドロップアウト
+### 3-1-2.　ドロップアウト
 　ランダムにノードを削除して学習させること。</br>
 　<img width="155" alt="image" src="https://user-images.githubusercontent.com/57135683/147377460-c3851725-08f4-40fe-b6b2-e431acec7afe.png"></br>
 　メリットとして、データ量を変化させずに、異なるモデルを学習させていると解釈できる。　　　　　
@@ -183,15 +186,93 @@
 
 　d
 
+</br>
+
+> 下図のL1正則化を表しているグラフはどちらか  
 > <img width="350" alt="image" src="https://user-images.githubusercontent.com/57135683/147377391-60c99a22-34b7-4799-8f79-01a73a40508b.png">
 
 　右
+
+</br>
+
+> <img width="403" alt="image" src="https://user-images.githubusercontent.com/57135683/147382189-dcaae477-0c39-44f0-80c7-29006c702954.png">
+
+　4
+
+</br>
+
+> <img width="410" alt="image" src="https://user-images.githubusercontent.com/57135683/147382200-93d3010c-8f2b-47b5-be57-8926e7445277.png">
+
+　3
+
+</br>
+
+> <img width="349" alt="image" src="https://user-images.githubusercontent.com/57135683/147382210-9c827666-7332-4f63-83d9-dc258a0194a6.png">
+
+　4
+
+</br>
 
 ## 3-3.実装演習
 ```code
 ```
 
+</br>
+
+</details>
+
 # 4.畳み込みニューラルネットワークの概念
+<details><summary>クリックすると展開されます</summary>
+  
+## 4-1.要点のまとめ
+全結合層は、カラー画像におけるRGBなど、各チャンネル間の関連性が学習に反映されない。</br>
+
+そこで全結合の前に畳み込み処理をすることでその問題を解決できる。</br>
+これにより、CNNで画像識別や音声など、次元間でつながりのあるデータを扱えるようになる。</br>
+
+CNNの代表的なものの一つにLeNetがある。</br>
+
+CNNの構成は以下の通り。</br>
+
+<img width="114" alt="image" src="https://user-images.githubusercontent.com/57135683/147378818-35355fd0-5c57-417b-b2c1-f0665b076920.png"></br>
+
+</br>
+
+### 4-1-1.畳み込み層
+　畳み込み層では畳み込み演算を行う。</br>
+
+　畳み込み演算とは、フィルターを用いて入力画像の対象領域に演算を行い、バイアスを加え出力とする。</br>
+
+　この際、畳み込み演算のフィルターの数を**チャンネル**、</br>
+　フィルターをかける際に何マスずらすかを**ストライド**、</br>
+　また、畳み込み演算を行うと、画像のサイズが小さくなってしまうため、</br>
+　フィルターをかける前に、上下左右に画像を広げる。これを**パディング**という。</br>
+
+　畳み込み層は、画像の場合、縦、横、チャンネルの3次元のデータをそのまま学習し、次に伝えることができる。</br>
+
+</br>
+
+### 4-1-2.プーリング層
+　畳み込み層と組み合わせて使われる。</br>
+ 
+　畳み込み層と同様にすこしずつずれながら画像を読み取る。その際行う処理は様々あり、</br>
+　対象領域の最高値を使う**MaxPooling**や、平均値を使う**AvgPooling**がある。</br>
+
+</br>
+
+## 4-2.確認問題
+> サイズ6x6の入力画像を、サイズ2x2のフィルタで畳み込んだ時の出力画像のサイズを答えよ。
+> なおストライドとパディングは1とする。
+
+　7x7
+
+</br>
+
+## 4-3.実装演習
+```code
+```
+
+</details>
 
 # 5.最新のCNN
 <details><summary>クリックすると展開されます</summary>
