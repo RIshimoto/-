@@ -80,10 +80,74 @@
 </br>
 
 ## 1-3.実装演習
-
+　__init_weightのweight_init_stdに用いたい初期化を指定する。</br>
 ```code
+  def __init_weight(self, weight_init_std):
+        all_size_list = [self.input_size] + self.hidden_size_list + [self.output_size]
+        for idx in range(1, len(all_size_list)):
+            scale = weight_init_std
+            if str(weight_init_std).lower() in ('relu', 'he'):
+                scale = np.sqrt(2.0 / all_size_list[idx - 1])
+            elif str(weight_init_std).lower() in ('sigmoid', 'xavier'):
+                scale = np.sqrt(1.0 / all_size_list[idx - 1])
 
+            self.params['W' + str(idx)] = scale * np.random.randn(all_size_list[idx-1], all_size_list[idx])
+            self.params['b' + str(idx)] = np.zeros(all_size_list[idx])
 ```
+
+　ガウス分布に基づいて重みを初期化し、sigmoidを用いて学習した場合。</br>
+ 
+　　<img width="298" alt="image" src="https://user-images.githubusercontent.com/57135683/147398136-49db452e-0211-464e-9fd3-50e447552fdf.png"></br>
+  
+</br>
+
+　ガウス分布に基づいて重みを初期化し、reluを用いて学習した場合。</br>
+ 
+　　<img width="302" alt="image" src="https://user-images.githubusercontent.com/57135683/147398246-1abb640f-4857-422e-a9a5-54b766122595.png"></br>
+  
+</br>
+
+　Xavierに基づいて重みを初期化し、sigmoidを用いて学習した場合。</br>
+ 
+　　<img width="298" alt="image" src="https://user-images.githubusercontent.com/57135683/147398260-5df95315-8c21-417d-928a-e6c0fa74018e.png"></br>
+  
+</br>
+
+　Xavierに基づいて重みを初期化し、reluを用いて学習した場合。</br>
+ 
+　　<img width="302" alt="image" src="https://user-images.githubusercontent.com/57135683/147398353-bc4f0040-8661-40c7-adb9-c0cddd3e6746.png"></br>
+
+</br>
+
+　Heに基づいて重みを初期化し、sigmoidを用いて学習した場合。</br>
+ 
+　　<img width="309" alt="image" src="https://user-images.githubusercontent.com/57135683/147398342-ce931a0c-d6e8-4883-b7df-dc1a2e34a5c8.png"></br>
+
+</br>
+
+　Heに基づいて重みを初期化し、reluを用いて学習した場合。</br>
+ 
+　　<img width="305" alt="image" src="https://user-images.githubusercontent.com/57135683/147398284-7837d805-741a-4810-b9c5-384f59fa1cb2.png"></br>
+
+</br>
+
+　バッチ正規化の処理は以下の通り。</br>
+```code
+  mu = x.mean(axis=0) # 平均
+  xc = x - mu # xをセンタリング
+  var = np.mean(xc**2, axis=0) # 分散
+  std = np.sqrt(var + 10e-7) # スケーリング
+  xn = xc / std
+            
+  self.batch_size = x.shape[0]
+  self.xc = xc
+  self.xn = xn
+  self.std = std
+  self.running_mean = self.momentum * self.running_mean + (1-self.momentum) * mu # 平均値の加重平均
+  self.running_var = self.momentum * self.running_var + (1-self.momentum) * var #分散値の加重平均
+```
+　<img width="326" alt="image" src="https://user-images.githubusercontent.com/57135683/147398618-26f112e8-daca-4a15-b3ce-60b33af7e5c1.png"></br>
+　過学習が起こしていないのがわかる。</br>
 
 </br>
 
