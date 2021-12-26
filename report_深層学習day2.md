@@ -80,6 +80,8 @@
 </br>
 
 ## 1-3.実装演習
+　重みの初期化、活性化関数の選択を行い勾配消失を防ぐコードは以下の通り。</br>
+ 
 　__init_weightのweight_init_stdに用いたい初期化を指定する。</br>
 ```code
   def __init_weight(self, weight_init_std):
@@ -128,10 +130,13 @@
 　Heに基づいて重みを初期化し、reluを用いて学習した場合。</br>
  
 　　<img width="305" alt="image" src="https://user-images.githubusercontent.com/57135683/147398284-7837d805-741a-4810-b9c5-384f59fa1cb2.png"></br>
-
+</br>
+　また、中間層の数を2層から9層に変えてみると、</br>
+　sigmoid + Xavierでは勾配消失を起こしたが、ReLU + Xavierでは勾配消失が起こらなかった。</br>
+  
 </br>
 
-　バッチ正規化の処理は以下の通り。</br>
+　次にバッチ正規化について。</br>
 ```code
   mu = x.mean(axis=0) # 平均
   xc = x - mu # xをセンタリング
@@ -146,8 +151,14 @@
   self.running_mean = self.momentum * self.running_mean + (1-self.momentum) * mu # 平均値の加重平均
   self.running_var = self.momentum * self.running_var + (1-self.momentum) * var #分散値の加重平均
 ```
+
+　sigmoid + ガウス分布にバッチ正規化の処理を加えると、勾配消失は起こらなかった。</br>
+　
 　<img width="326" alt="image" src="https://user-images.githubusercontent.com/57135683/147398618-26f112e8-daca-4a15-b3ce-60b33af7e5c1.png"></br>
-　過学習が起こしていないのがわかる。</br>
+ 
+ しかし、これは中間層を増やすと勾配消失が起きてしまう。</br>
+ 重みの初期値をガウス分布からXavierに変えても同様に勾配消失が起こり、学習がうまくいかない。</br>
+ これは、simoid関数が原因だと思われ、可能ならsigmoid関数ではなくReLUを使うことが望ましいことがわかった。</br>
 
 </br>
 
@@ -217,8 +228,42 @@
 </br>
 
 ## 2-3.実装演習
-```code
+
+- Momentum</br>
+ ```code
+  v[key] = momentum * v[key] - learning_rate * grad[key]
+  network.params[key] += v[key]
+ ```
+　<img width="325" alt="image" src="https://user-images.githubusercontent.com/57135683/147398786-ed9a3a40-eb2d-43af-80f6-c3ba06687b15.png"></br>
+
+- AdaGrad</br>
+ ```code
+ ```
+　<img width="316" alt="image" src="https://user-images.githubusercontent.com/57135683/147398798-76bd2eee-14f9-4631-a3ef-31f5c612bbd9.png"></br>
+
+- RMSProp</br>
+ ```code
+  h[key] *= decay_rate
+  h[key] += (1 - decay_rate) * np.square(grad[key])
+  network.params[key] -= learning_rate * grad[key] / (np.sqrt(h[key]) + 1e-7)
 ```
+　<img width="325" alt="image" src="https://user-images.githubusercontent.com/57135683/147398805-eb2947a0-97cc-434c-8cd4-c83e3b393f67.png"></br>
+ 
+
+- Adam</br>
+ ```code
+ learning_rate_t  = learning_rate * np.sqrt(1.0 - beta2 ** (i + 1)) / (1.0 - beta1 ** (i + 1))    
+    for key in ('W1', 'W2', 'W3', 'b1', 'b2', 'b3'):
+        if i == 0:
+            m[key] = np.zeros_like(network.params[key])
+            v[key] = np.zeros_like(network.params[key])
+            
+        m[key] += (1 - beta1) * (grad[key] - m[key])
+        v[key] += (1 - beta2) * (grad[key] ** 2 - v[key])            
+        network.params[key] -= learning_rate_t * m[key] / (np.sqrt(v[key]) + 1e-7)                
+
+```
+　<img width="329" alt="image" src="https://user-images.githubusercontent.com/57135683/147398806-ab703d52-7769-4ef4-8e01-33a3436560c7.png"></br>
 
 </br>
 
@@ -284,8 +329,48 @@
 </br>
 
 ## 3-3.実装演習
-```code
-```
+- L2正則化</br>
+
+  ```code
+  weight_decay += 0.5 * weight_decay_lambda * np.sqrt(np.sum(network.params['W' + str(idx)] ** 2))
+  ```
+  <img width="321" alt="image" src="https://user-images.githubusercontent.com/57135683/147399396-c9e46ed4-5863-4190-8cf1-c0817eba5bf5.png"></br>
+  正則化項を加えることで訓練データでoverfittingしないようになっている。</br>
+  
+</br>
+
+- L1正則化</br>
+
+  ```code
+  weight_decay += weight_decay_lambda * np.sum(np.abs(network.params['W' + str(idx)]))
+  ```
+  <img width="319" alt="image" src="https://user-images.githubusercontent.com/57135683/147399413-dc2533af-4cfb-4afb-a052-cbcedadb28be.png"></br>
+  一部の重みが消されるので、特徴的な形になった。</br>
+  
+</br>
+
+- ドロップアウト</br>
+
+  ```code
+  class Dropout:
+    def __init__(self, dropout_ratio=0.5):
+        self.dropout_ratio = dropout_ratio
+        self.mask = None
+
+    def forward(self, x, train_flg=True):
+        if train_flg:
+            self.mask = np.random.rand(*x.shape) > self.dropout_ratio
+            return x * self.mask
+        else:
+            return x * (1.0 - self.dropout_ratio)
+
+    def backward(self, dout):
+        return dout * self.mask
+   ```
+  <img width="299" alt="image" src="https://user-images.githubusercontent.com/57135683/147399428-1db689f9-3afc-43f1-a2e8-e1422754191d.png"></br>
+
+    ドロップ+L1正則化</br>
+    <img width="292" alt="image" src="https://user-images.githubusercontent.com/57135683/147399460-0b538695-bda4-4e61-94e4-51a3d79738cb.png"></br>
 
 </br>
 
@@ -339,6 +424,7 @@ CNNの構成は以下の通り。</br>
 </br>
 
 ## 4-3.実装演習
+畳み込み処理
 ```code
 ```
 
