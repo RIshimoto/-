@@ -424,8 +424,109 @@ CNNの構成は以下の通り。</br>
 </br>
 
 ## 4-3.実装演習
-畳み込み処理
+- 畳み込み層
 ```code
+class Convolution:
+    # W: フィルター, b: バイアス
+    def __init__(self, W, b, stride=1, pad=0):
+        self.W = W
+        self.b = b
+        self.stride = stride
+        self.pad = pad
+        
+        # 中間データ（backward時に使用）
+        self.x = None   
+        self.col = None
+        self.col_W = None
+        
+        # フィルター・バイアスパラメータの勾配
+        self.dW = None
+        self.db = None
+
+    def forward(self, x):
+        # FN: filter_number, C: channel, FH: filter_height, FW: filter_width
+        FN, C, FH, FW = self.W.shape
+        N, C, H, W = x.shape
+        # 出力値のheight, width
+        out_h = 1 + int((H + 2 * self.pad - FH) / self.stride)
+        out_w = 1 + int((W + 2 * self.pad - FW) / self.stride)
+        
+        # xを行列に変換
+        col = im2col(x, FH, FW, self.stride, self.pad)
+        # フィルターをxに合わせた行列に変換
+        col_W = self.W.reshape(FN, -1).T
+
+        out = np.dot(col, col_W) + self.b
+        # 計算のために変えた形式を戻す
+        out = out.reshape(N, out_h, out_w, -1).transpose(0, 3, 1, 2)
+
+        self.x = x
+        self.col = col
+        self.col_W = col_W
+
+        return out
+
+    def backward(self, dout):
+        FN, C, FH, FW = self.W.shape
+        dout = dout.transpose(0, 2, 3, 1).reshape(-1, FN)
+
+        self.db = np.sum(dout, axis=0)
+        self.dW = np.dot(self.col.T, dout)
+        self.dW = self.dW.transpose(1, 0).reshape(FN, C, FH, FW)
+
+        dcol = np.dot(dout, self.col_W.T)
+        # dcolを画像データに変換
+        dx = col2im(dcol, self.x.shape, FH, FW, self.stride, self.pad)
+
+        return dx
+```
+
+</br>
+
+- プーリング層
+```code
+class Pooling:
+    def __init__(self, pool_h, pool_w, stride=1, pad=0):
+        self.pool_h = pool_h
+        self.pool_w = pool_w
+        self.stride = stride
+        self.pad = pad
+        
+        self.x = None
+        self.arg_max = None
+
+    def forward(self, x):
+        N, C, H, W = x.shape
+        out_h = int(1 + (H - self.pool_h) / self.stride)
+        out_w = int(1 + (W - self.pool_w) / self.stride)
+        
+        # xを行列に変換
+        col = im2col(x, self.pool_h, self.pool_w, self.stride, self.pad)
+        # プーリングのサイズに合わせてリサイズ
+        col = col.reshape(-1, self.pool_h*self.pool_w)
+        
+        #maxプーリング
+        arg_max = np.argmax(col, axis=1)
+        out = np.max(col, axis=1)
+        out = out.reshape(N, out_h, out_w, C).transpose(0, 3, 1, 2)
+
+        self.x = x
+        self.arg_max = arg_max
+
+        return out
+
+    def backward(self, dout):
+        dout = dout.transpose(0, 2, 3, 1)
+        
+        pool_size = self.pool_h * self.pool_w
+        dmax = np.zeros((dout.size, pool_size))
+        dmax[np.arange(self.arg_max.size), self.arg_max.flatten()] = dout.flatten()
+        dmax = dmax.reshape(dout.shape + (pool_size,)) 
+        
+        dcol = dmax.reshape(dmax.shape[0] * dmax.shape[1] * dmax.shape[2], -1)
+        dx = col2im(dcol, self.x.shape, self.pool_h, self.pool_w, self.stride, self.pad)
+        
+        return dx
 ```
 
 </br>
@@ -434,7 +535,6 @@ CNNの構成は以下の通り。</br>
 # 5.最新のCNN
 <details><summary>クリックすると展開されます</summary>
   
-## 5-1.要点のまとめ
 ### AlexNet
 　５層の畳み込みそうおよびプーリング層など、それに続く３層の全結合層から構成される。</br>
 　<img width="298" alt="image" src="https://user-images.githubusercontent.com/57135683/147377661-27e0269b-b21a-4c4c-b7d1-9cec37a4bb9d.png"></br>
@@ -451,8 +551,5 @@ CNNの構成は以下の通り。</br>
     各チャンネルの一番平均を使う。
 
   </br>
-  
-## 5-2.確認問題
-## 5-3.実装演習
 
 </details>
