@@ -188,6 +188,8 @@ plt.legend()
 </details>
 
 # 3.ロジスティック回帰
+<details><summary>クリックすると展開されます</summary>
+   
 ## 3-1.要点まとめ
 　分類問題（ある入力からクラスに分類する）を解くための教師あり機械学習モデル。</br>
 　m次元パラメータの線形結合をシグモイド関数に入力し、ラベルy=１になる確率を出力する。</br>
@@ -202,6 +204,8 @@ plt.legend()
 　シグモイド関数の微分はシグモイド関数で表現できるため、尤度関数の微分の際に便利。</br>
 
 　　<img src="https://latex.codecogs.com/svg.image?\begin{align*}\frac{\partial&space;\sigma\left(x\right)}{\partial&space;x}&=\frac{\partial&space;}{\partial&space;x}\left(\frac{1}{1&plus;exp\left(-ax\right)}\right)\\&=\left(-1\right)\cdot{1&plus;exp(-ax)}^{-2}\cdot&space;exp\left(-ax\right)\cdot\left(-a\right)\\&=\frac{a\cdot&space;exp\left(-ax\right)}{1&plus;exp(-ax)}^2\\&=\frac{a}{1&plus;exp(-ax)}\cdot\frac{1&plus;exp(-ax)-1}{1&plus;exp(-ax)}\\&=a\sigma(x)\cdot(1-\sigma(x))\end{align*}&space;" title="\begin{align*}\frac{\partial&space;\sigma\left(x\right)}{\partial&space;x}&=\frac{\partial&space;}{\partial&space;x}\left(\frac{1}{1&plus;exp\left(-ax\right)}\right)\\&=\left(-1\right)\cdot{1&plus;exp(-ax)}^{-2}\cdot exp\left(-ax\right)\cdot\left(-a\right)\\&=\frac{a\cdot exp\left(-ax\right)}{1&plus;exp(-ax)}^2\\&=\frac{a}{1&plus;exp(-ax)}\cdot\frac{1&plus;exp(-ax)-1}{1&plus;exp(-ax)}\\&=a\sigma(x)\cdot(1-\sigma(x))\end{align*}&space;" /></br>
+
+</br>
 
 　シグモイド関数の出力をY=1になる確率に対応させると、</br>
 
@@ -267,12 +271,56 @@ plt.legend()
 </br>
 
 ## 3-2.実装演習　
-```code
-```
+　タイタニックの乗客データを利用し、ロジスティック回帰モデルを作成し、特定の乗客がどれくらい生き残れるかを予測する。</br>
+
 </br>
 
+　チケット価格から情報から生存情報を判別する。</br>
+ ```code
+   #運賃だけのリストを作成
+   data1 = titanic_df.loc[:, ["Fare"]].values
+
+   #生死フラグのみのリストを作成
+   label1 =  titanic_df.loc[:,["Survived"]].values
+
+   from sklearn.linear_model import LogisticRegression
+   model=LogisticRegression()
+   model.fit(data1, label1)
+ ```
+ 
+ 　実際に推定を行うと$61のチケットを買った人はなくなったことがわかる。</br>
+```code
+   model.predict([[61]])
+```
+　<img width="77" alt="image" src="https://user-images.githubusercontent.com/57135683/147536598-6635a24f-e1b7-409d-9063-9d8bf193a8cd.png"></br>
+
+　また死亡する確率は、</br>
+```code
+   model.predict_proba([[62]])
+```
+　<img width="214" alt="image" src="https://user-images.githubusercontent.com/57135683/147536693-eceee2a6-4764-4643-88ef-db1df48fe800.png"></br>
+　とわかる。</br>
+ 
+ </br>
+ 
+　次に今あるデータから新しい特徴量を作って、それからロジスティック回帰を行ってみる。</br>
+　高い階級の女性は死亡率が低いと仮定し、</br>
+　「Pclass」と「Gender」のデータから新しい特徴量「Pclass_Gender」を作る。
+```code
+   titanic_df['Pclass_Gender'] = titanic_df['Pclass'] + titanic_df['Gender']
+```
+　<img width="598" alt="image" src="https://user-images.githubusercontent.com/57135683/147537138-f50bb5a4-2817-4339-95d2-03ea388c015c.png"></br>
+ 
+　Pclass_GenderとAgeの関係から生存率を見てみると、</br>
+　年齢が低い、階級が高い、女性の特徴があると生き残りやすいということがわかる。</br>
+　<img width="391" alt="image" src="https://user-images.githubusercontent.com/57135683/147537335-18fe07f1-3bdb-4f8d-844b-3b19887e27fe.png"></br>
+
+</br>
+
+</details>
+
 # 4.主成分分析
-<details><summary>クリックすると展開されます。</summary>
+<details><summary>クリックすると展開されます</summary>
 
 ## 4-1.要点まとめ
 　教師なし学習の一種であり、次元圧縮の手法。</br>
