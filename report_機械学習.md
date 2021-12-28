@@ -441,6 +441,8 @@ plt.ylabel('PC 2') # 第2主成分をy軸
 </details>
 
 # 5.サポートベクターマシーン
+<details><summary>クリックすると展開されます</summary>
+   
 ## 5-1.要点まとめ
 　サポートベクターマシーンは２クラス分類問題の代表的な手法なひとつ。</br>
  
@@ -477,10 +479,117 @@ plt.ylabel('PC 2') # 第2主成分をy軸
   　　<img src="https://latex.codecogs.com/svg.image?K\left(x_i,&space;x_j\right)=exp\left(-\gamma&space;\left\|\boldsymbol{x_i}-\boldsymbol{x_j}\right\|^2\right)" title="K\left(x_i, x_j\right)=exp\left(-\gamma \left\|\boldsymbol{x_i}-\boldsymbol{x_j}\right\|^2\right)" />
   
   - シグモイドカーネル
+
   　　<img src="https://latex.codecogs.com/svg.image?K\left(x_i,&space;x_j\right)=\tanh\left(b\boldsymbol{x_i}^T\boldsymbol{x_j}&plus;c\right)" title="K\left(x_i, x_j\right)=\tanh\left(b\boldsymbol{x_i}^T\boldsymbol{x_j}+c\right)" />
 
 </br>
 
 ## 5-2.実装演習
+　線形分離可能な問題について</br>
+　<img width="275" alt="image" src="https://user-images.githubusercontent.com/57135683/147537934-2da93147-9d3d-4262-971b-b6da6f8705bb.png">
+
+　学習を行う。</br>
 ```code
+   t = np.where(ys_train == 1.0, 1.0, -1.0)
+
+   n_samples = len(X_train)
+   # 線形カーネル
+   K = X_train.dot(X_train.T)
+
+   eta1 = 0.01
+   eta2 = 0.001
+   n_iter = 500
+
+   H = np.outer(t, t) * K
+
+   a = np.ones(n_samples)
+   for _ in range(n_iter):
+      grad = 1 - H.dot(a)
+      a += eta1 * grad
+      a -= eta2 * a.dot(t) * t
+      a = np.where(a > 0, a, 0)
 ```
+
+　次に予測を行う。</br>
+```code
+   index = a > 1e-6
+   support_vectors = X_train[index]
+   support_vector_t = t[index]
+   support_vector_a = a[index]
+
+   term2 = K[index][:, index].dot(support_vector_a * support_vector_t)
+   b = (support_vector_t - term2).mean()
+
+   xx0, xx1 = np.meshgrid(np.linspace(-5, 5, 100), np.linspace(-5, 5, 100))
+   xx = np.array([xx0, xx1]).reshape(2, -1).T
+
+   X  _test = xx
+   y_project = np.ones(len(X_test)) * b
+   for i in range(len(X_test)):
+       for a, sv_t, sv in zip(support_vector_a, support_vector_t, support_vectors):
+           y_project[i] += a * sv_t * sv.dot(X_test[i])
+   y_pred = np.sign(y_project)
+```
+　実行結果は、</br>
+　<img width="280" alt="image" src="https://user-images.githubusercontent.com/57135683/147538145-48c1e6fe-3e94-47a3-a7a9-33420d317769.png"></br>
+
+</br>
+
+　次に線形分離不可能な問題について</br>
+　<img width="290" alt="image" src="https://user-images.githubusercontent.com/57135683/147538379-8df125b7-0de8-451d-8c56-6b960c15a858.png"></br>
+
+　カーネルとしてRBFカーネル（ガウシアンカーネル）を利用する。</br>
+　学習</br>
+```code
+   def rbf(u, v):
+        sigma = 0.8
+        return np.exp(-0.5 * ((u - v)**2).sum() / sigma**2)
+    
+   X_train = x_train
+   t = np.where(y_train == 1.0, 1.0, -1.0)
+
+   n_samples = len(X_train)
+   # RBFカーネル
+   K = np.zeros((n_samples, n_samples))
+   for i in range(n_samples):
+     for j in range(n_samples):
+         K[i, j] = rbf(X_train[i], X_train[j])
+
+   eta1 = 0.01
+   eta2 = 0.001
+   n_iter = 5000
+
+H = np.outer(t, t) * K
+
+   a = np.ones(n_samples)
+   for _ in range(n_iter):
+       grad = 1 - H.dot(a)
+       a += eta1 * grad
+       a -= eta2 * a.dot(t) * t
+       a = np.where(a > 0, a, 0)
+```
+
+　予測</br>
+ ```code
+   index = a > 1e-6
+   support_vectors = X_train[index]
+   support_vector_t = t[index]
+   support_vector_a = a[index]
+
+   term2 = K[index][:, index].dot(support_vector_a * support_vector_t)
+   b = (support_vector_t - term2).mean()
+
+   xx0, xx1 = np.meshgrid(np.linspace(-1.5, 1.5, 100), np.linspace(-1.5, 1.5, 100))
+   xx = np.array([xx0, xx1]).reshape(2, -1).T
+
+   X_test = xx
+   y_project = np.ones(len(X_test)) * b
+   for i in range(len(X_test)):
+       for a, sv_t, sv in zip(support_vector_a, support_vector_t, support_vectors):
+           y_project[i] += a * sv_t * rbf(X_test[i], sv)
+   y_pred = np.sign(y_project)
+```
+
+　<img width="289" alt="image" src="https://user-images.githubusercontent.com/57135683/147538608-b7ad7bc1-a5ea-4e72-b366-f77cd8603abf.png"></br>
+
+</details>
