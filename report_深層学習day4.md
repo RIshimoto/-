@@ -324,42 +324,30 @@
     言語モデルを再現するようにRNNの重みが学習されていれば、ある時点の次の単語を予測することができる。
     各地点で次にどの単語が来れば自然かを出力できる。
 
-## 5-2.確認まとめ
-## 5-3.実装演習
-
 # 6.物体検知・セグメンテーション
 ## 6-1.要点まとめ
-画像に対し、分類、物体検知、意味領域分割、個体領域分割のタスクを行う。</br>
+　物体検知とは、画像に対し、どこに何があるかを検出するタスク。</br>
+　分類、物体検知、意味領域分割、個体領域分割のタスクがある。</br>
 
-代表的なデータセットにVOC12、ILSVRC17、MS\ COCO18、OICOD18などがある。</br>
+　代表的なデータセットにVOC12、ILSVRC17、MS COCO18、OICOD18などがある。</br>
+　タスクに応じて適切なデータセットを使う必要がある。</br>
 
-物体検出においてはクラスラベルだけでなく、物体位置の予測精度も評価したい。</br>
-それを測るための指標として、IoUがある。</br>
+　物体検出においてはクラスラベルだけでなく、物体位置の予測精度も評価したい。</br>
+　それを測るための指標として、IoUがある。</br>
 
-<img width="168" alt="image" src="https://user-images.githubusercontent.com/57135683/148365016-31df6108-4d06-4bee-8f13-80320a4c0c74.png"></br>
-<img src="https://latex.codecogs.com/svg.image?IoU=\frac{TP}{TP&plus;FP&plus;FN}" title="IoU=\frac{TP}{TP+FP+FN}" /></br>
+　<img width="168" alt="image" src="https://user-images.githubusercontent.com/57135683/148365016-31df6108-4d06-4bee-8f13-80320a4c0c74.png"></br>
+　<img src="https://latex.codecogs.com/svg.image?IoU=\frac{TP}{TP&plus;FP&plus;FN}" title="IoU=\frac{TP}{TP+FP+FN}" /></br>
 
-このIoUを用いて、Precision/Recallを求める。</br>
-まずクラスを固定して、confの値を変化させ、そのそれぞれに対して求めたPrecisionとRecallをもとめ、求められたPR曲線の下側面積をAverage\ Precisionとする。</br>
-次にそれをクラス数で割った指標がmAPdであり、これを用いて検出精度を評価する。</br>
+　このIoUを用いて、Precision、Recallを求める。</br>
+　まずクラスを固定して、confの値を変化させ、そのそれぞれに対して求めたPrecisionとRecallをもとめ、</br>
+　求められたPR曲線の下側面積をAverage Precisionとする。</br>
+　次にそれをクラス数で割った指標がmAPdであり、これを用いて検出精度を評価する。</br>
 
-また、応用上の要請から、検出精度に加え検出速度も問題となる。
-検出速度を求める指標として、1sに何枚のフレームを処理できるかを表すFPS、1枚のフレームを何秒で処理できるかを表すinference\ timeなどがある。
-<img width="308" alt="image" src="https://user-images.githubusercontent.com/57135683/148365856-6f72b006-652f-4f74-8748-5e36e6f3356b.png"></br>
-<img width="235" alt="image" src="https://user-images.githubusercontent.com/57135683/148365903-e6f1a79f-50f7-4696-8379-9cc9e794894e.png"></br>
+　また、応用上の要請から、検出精度に加え検出速度も問題となる。</br>
+　検出速度を求める指標として、1sに何枚のフレームを処理できるかを表すFPS、1枚のフレームを何秒で処理できるかを表すinference timeなどがある。</br>
+　<img width="308" alt="image" src="https://user-images.githubusercontent.com/57135683/148365856-6f72b006-652f-4f74-8748-5e36e6f3356b.png">
+　<img width="235" alt="image" src="https://user-images.githubusercontent.com/57135683/148365903-e6f1a79f-50f7-4696-8379-9cc9e794894e.png"></br>
 
-</br>
-
-物体検出のフレームワークには大きく分けて、２段階検出器と１段階検出器がある。</br>
-２段階検出器は候補領域の検出とクラス推定を別々に行う。</br>
-１段階検出器は候補領域の検出とクラス推定を同時に行う。SSD、YOLOなどがある。</br>
-
-- **SSD**
-  1.検出したい物体に対し、Default\ Boxを用意。
-  2.Default\ BOXを変形し、各クラスに対するconf.を出力。
-  
-- **Semantic\ Segmentation**
-
-
-## 6-2.確認まとめ
-## 6-3.実装演習
+　物体検出のフレームワークには大きく分けて、２段階検出器と１段階検出器がある。</br>
+　２段階検出器は候補領域の検出とクラス推定を別々に行う。</br>
+　１段階検出器は候補領域の検出とクラス推定を同時に行う。SSD、YOLOなどがある。</br>
