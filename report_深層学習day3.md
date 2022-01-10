@@ -696,9 +696,9 @@ if __name__ == "__main__":
 
 # 4.双方向RNN
 ## 4-1.要点まとめ
-過去の情報だけでなく、未来の情報を加味することで、精度を向上させるためのモデル。</br>
-文章の推敲や機械学習などで用いられる。</br>
-<img width="206" alt="image" src="https://user-images.githubusercontent.com/57135683/148670934-1fcaa812-1701-43fc-a09e-8ecc5f19adbc.png"></br>
+　過去の情報だけでなく、未来の情報を加味することで、精度を向上させるためのモデル。</br>
+　<img width="206" alt="image" src="https://user-images.githubusercontent.com/57135683/148670934-1fcaa812-1701-43fc-a09e-8ecc5f19adbc.png"></br>
+　文章の推敲や機械学習などで用いられる。</br>
 
 </br>
 
@@ -970,5 +970,3 @@ Seq2seqは２単語でも１００単語でも、固定次元ベクトルの中�
 　VHREDは、HREDが文脈に対して当たり障りのない返答しかできなくなった際の解決策。</br>
 
 </br>
-
-## 7-3.関連記事
