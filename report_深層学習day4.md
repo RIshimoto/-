@@ -27,11 +27,6 @@
   <img width="230" alt="image" src="https://user-images.githubusercontent.com/57135683/148182386-12b03e41-5dce-4cb2-adcf-af412bd40741.png"></br>
   方策関数と行動価値関数の二つを学習させる。
 
-- **強化学習の差分**
-
-  教師なし、あり学習では、データに含まれるパターンを見つけ出す、およびそのデータから予測することが目標。</br>
-  一方、強化学習では、優れた方策を見つけることが目標。</br>
-
 - **強化学習の歴史**
 
   関数近似法と、Q学習を組み合わせる手法が登場した。</br>
@@ -64,6 +59,144 @@
   Jとは方策の良さ。これは定義しなければならない。</br>
   定義の方法は、**平均報酬**、**割引報酬**がある。</br>
   この定義に対応して、行動価値関数:Q(s,a)の定義を行う。</br>
+
+</br>
+
+## 1-2.確認テスト
+
+> 教師あり、なし学習と強化学習の違い</br>
+
+　教師なし、あり学習では、データに含まれるパターンを見つけ出す、およびそのデータから予測することが目標。</br>
+　一方、強化学習では、優れた方策を見つけることが目標。</br>
+
+</br>
+
+## 1-3.参考図書
+- 小川雄太郎『つくりながら学ぶ！深層強化学習　pyTorchによる実践プログラミング』株式会社マイナビ出版,2018.
+
+  このような迷路を考え、これを方策勾配法でSTARTからGOALまでの最短距離を求める。</br>
+  <img width="226" alt="image" src="https://user-images.githubusercontent.com/57135683/148728595-20c0fc07-0306-4fe0-96fa-f28de120c34f.png"></br>
+
+  まず、初期の方策を決定するパラメータtheta_0を設定する。</br>
+  ```code
+  theta_0 = np.array([[np.nan, 1, 1, np.nan],#S0
+                   [np.nan, 1, np.nan, 1], #S1
+                   [np.nan, np.nan, 1, 1], #S2
+                   [1, 1, 1, np.nan],      #S3
+                   [np.nan, np.nan, 1, 1], #S4
+                   [1, np.nan, np.nan, np.nan],#S5
+                   [1, np.nan, np.nan, np.nan],#S6
+                   [1, 1, np.nan, np.nan], #S7
+                   ])
+  ```
+
+  次にsoftmax関数に従って、パラメータから方策に変換する。</br>
+  ```code
+  def softmax_convert_into_pi_from_theta(theta):
+    beta = 1.0
+    [m, n] = theta.shape
+    pi = np.zeros((m, n))
+    exp_theta = np.exp(beta * theta)
+    
+    for i in range(0, m):
+        pi[i, :] = exp_theta[i, :] / np.nansum(exp_theta[i, :])
+    
+    pi = np.nan_to_num(pi)
+    return pi
+
+  #初期の方策pi_0
+  pi_0 = softmax_convert_into_pi_from_theta(theta_0)
+  ```
+  実行結果:</br>
+  <img width="285" alt="image" src="https://user-images.githubusercontent.com/57135683/148733540-0c72564c-2877-42ec-a7d4-922346d49a28.png"></br>
+
+  この方策に従ってエージェントを行動させる。
+  ```code
+  def get_action_and_next_s(pi, s):
+    direction = ["up", "right", "down", "left"]
+    next_direction = np.random.choice(direction, p=pi[s, :])
+    
+    if next_direction == "up":
+        action = 0
+        s_next = s - 3
+    elif next_direction == "right":
+        action = 1
+        s_next = s + 1
+    elif next_direction == "down":
+        action = 2
+        s_next = s + 3
+    elif next_direction == "left":
+        action = 3
+        s_next = s - 1
+        
+    return [action, s_next]
+
+  def goal_maze_ret_s_a(pi):
+    s = 0
+    s_a_history = [[0, np.nan]]
+    
+    while (1):
+        [action, next_s] = get_action_and_next_s(pi, s)
+        s_a_history[-1][1] = action
+        
+        s_a_history.append([next_s, np.nan])
+        
+        if next_s == 8:
+            break
+        else:
+            s = next_s
+    return s_a_history
+  ```
+
+  その結果から、方策勾配法に従い方策を更新する。</br>
+  <img src="https://latex.codecogs.com/svg.image?\theta_{s_i,&space;a_j}=\theta_{s_i,&space;a_j}&plus;\eta\cdot\Delta\theta_{s_i,&space;a_j}\\\Delta\theta_{s_i,&space;a_j}=\left\{N\left(s_i,&space;a_j\right)-P\left(s_i,&space;a_j\right)N\left(s_i,&space;a\right)\right\}/T" title="\theta_{s_i, a_j}=\theta_{s_i, a_j}+\eta\cdot\Delta\theta_{s_i, a_j}\\\Delta\theta_{s_i, a_j}=\left\{N\left(s_i, a_j\right)-P\left(s_i, a_j\right)N\left(s_i, a\right)\right\}/T" /></br>
+
+  ```code
+  def update_theta(theta, pi, s_a_history):
+    eta = 0.1
+    T = len(s_a_history) - 1
+    
+    [m, n] = theta.shape
+    delta_theta = theta.copy()
+    
+    for i in range(0, m):
+        for j in range(0, n):
+            if not (np.isnan(theta[i, j])):
+                SA_i = [SA for SA in s_a_history if SA[0] == i]
+                
+                SA_ij = [SA for SA in s_a_history if SA== [i, j]]
+                
+                N_i = len(SA_i)
+                N_ij = len(SA_ij)
+                delta_theta[i, j] = (N_ij - pi[i, j] * N_i) / T
+    new_theta = theta + eta * delta_theta
+    return new_theta
+  ```
+  
+  これらを繰り返し行い最適な方策を求める。</br>
+  ```code
+  stop_epsilon = 10**-4
+
+  theta = theta_0
+  pi = pi_0
+
+  is_continue = True
+  count = 1
+  while is_continue:
+    s_a_history = goal_maze_ret_s_a(pi)
+    new_theta = update_theta(theta, pi, s_a_history)
+    new_pi = softmax_convert_into_pi_from_theta(new_theta)
+    
+    print(np.sum(np.abs(new_pi - pi)))
+    print("迷路を解くのにかかったステップ数は"+str(len(s_a_history)-1) + "です")
+    
+    if np.sum(np.abs(new_pi - pi)) < stop_epsilon:
+        is_continue = False
+    else:
+        theta = new_theta
+        pi = new_pi
+  ```
+  <img width="419" alt="image" src="https://user-images.githubusercontent.com/57135683/148733892-10a397af-6d24-47a2-812e-da77b56acc56.png"></br>
 
 </br>
 
@@ -391,6 +524,7 @@ for batch in test_dataloader:
 bleu = calc_bleu(refs_list, hyp_list)
 print(bleu)
 ```
+<img width="125" alt="image" src="https://user-images.githubusercontent.com/57135683/148718943-3b3eaf62-dd20-468a-96df-26f432cbc5ad.png"></br>
 
 </br>
 
