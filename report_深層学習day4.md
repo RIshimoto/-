@@ -316,6 +316,82 @@
   文章を翻訳するモデルであるSeq2seq（RNNベースのEncoder-Decoderモデル）は、文長が長くなると翻訳精度が落ちたため、Attentionメカニズムを用いていた。
   TransformerはRNNやCNNを用いずAttentionのみを用いたモデルである。</br>
   
+## 5-2.実装演習
+
+訓練</br>
+```code
+# 訓練
+best_valid_bleu = 0.
+
+for epoch in range(1, num_epochs+1):
+    start = time.time()
+    train_loss = 0.
+    train_refs = []
+    train_hyps = []
+    valid_loss = 0.
+    valid_refs = []
+    valid_hyps = []
+    # train
+    for batch in train_dataloader:
+        batch_X, batch_Y = batch
+        loss, gold, pred = compute_loss(
+            batch_X, batch_Y, model, criterion, optimizer, is_train=True
+            )
+        train_loss += loss
+        train_refs += gold
+        train_hyps += pred
+    # valid
+    for batch in valid_dataloader:
+        batch_X, batch_Y = batch
+        loss, gold, pred = compute_loss(
+            batch_X, batch_Y, model, criterion, is_train=False
+            )
+        valid_loss += loss
+        valid_refs += gold
+        valid_hyps += pred
+    # 損失をサンプル数で割って正規化
+    train_loss /= len(train_dataloader.data) 
+    valid_loss /= len(valid_dataloader.data) 
+    # BLEUを計算
+    train_bleu = calc_bleu(train_refs, train_hyps)
+    valid_bleu = calc_bleu(valid_refs, valid_hyps)
+
+    # validationデータでBLEUが改善した場合にはモデルを保存
+    if valid_bleu > best_valid_bleu:
+        ckpt = model.state_dict()
+        torch.save(ckpt, ckpt_path)
+        best_valid_bleu = valid_bleu
+
+    elapsed_time = (time.time()-start) / 60
+    print('Epoch {} [{:.1f}min]: train_loss: {:5.2f}  train_bleu: {:2.2f}  valid_loss: {:5.2f}  valid_bleu: {:2.2f}'.format(
+            epoch, elapsed_time, train_loss, train_bleu, valid_loss, valid_bleu))
+    print('-'*80)
+```
+<img width="541" alt="image" src="https://user-images.githubusercontent.com/57135683/148717418-e9baf148-6544-4722-a779-7dde0bafdebd.png">
+
+</br>
+
+評価</br>
+```code
+# BLEUの評価
+test_dataloader = DataLoader(
+    test_X, test_Y, 128,
+    shuffle=False
+    )
+refs_list = []
+hyp_list = []
+
+for batch in test_dataloader:
+    batch_X, batch_Y = batch
+    preds, *_ = test(model, batch_X)
+    preds = preds.data.cpu().numpy().tolist()
+    refs = batch_Y[0].data.cpu().numpy()[:, 1:].tolist()
+    refs_list += refs
+    hyp_list += preds
+bleu = calc_bleu(refs_list, hyp_list)
+print(bleu)
+```
+
 </br>
 
 # 6.物体検知・セグメンテーション
