@@ -294,6 +294,11 @@ plt.show()
  
 </br>
 
+## 2-3.実装演習
+　GRUのところでまとめて行う。</br>
+
+</br>
+
 # 3.GRU
 ## 3-1.要点まとめ
 
@@ -799,8 +804,126 @@ Seq2Seqとは、Encoder-Decoderモデルの一種を指す。</br>
 </br>
 
 ## 5-3.実装演習
+EncoderDecoderモデル</br>
 ```code
+class EncoderDecoder(nn.Module):
+    """EncoderとDecoderの処理をまとめる"""
+    def __init__(self, input_size, output_size, hidden_size):
+        """
+        :param input_size: int, 入力言語の語彙数
+        :param output_size: int, 出力言語の語彙数
+        :param hidden_size: int, 隠れ層のユニット数
+        """
+        super(EncoderDecoder, self).__init__()
+        self.encoder = Encoder(input_size, hidden_size)
+        self.decoder = Decoder(hidden_size, output_size)
+
+    def forward(self, batch_X, lengths_X, max_length, batch_Y=None, use_teacher_forcing=False):
+        """
+        :param batch_X: tensor, 入力系列のバッチ, size=(max_length, batch_size)
+        :param lengths_X: list, 入力系列のバッチ内の各サンプルの文長
+        :param max_length: int, Decoderの最大文長
+        :param batch_Y: tensor, Decoderで用いるターゲット系列
+        :param use_teacher_forcing: Decoderでターゲット系列を入力とするフラグ
+        :return decoder_outputs: tensor, Decoderの出力, 
+            size=(max_length, batch_size, self.decoder.output_size)
+        """
+        # encoderに系列を入力（複数時刻をまとめて処理）
+        _, encoder_hidden = self.encoder(batch_X, lengths_X)
+        
+        _batch_size = batch_X.size(1)
+
+        # decoderの入力と隠れ層の初期状態を定義
+        decoder_input = torch.tensor([BOS] * _batch_size, dtype=torch.long, device=device) # 最初の入力にはBOSを使用する
+        decoder_input = decoder_input.unsqueeze(0)  # (1, batch_size)
+        decoder_hidden = encoder_hidden  # Encoderの最終隠れ状態を取得
+
+        # decoderの出力のホルダーを定義
+        decoder_outputs = torch.zeros(max_length, _batch_size, self.decoder.output_size, device=device) # max_length分の固定長
+
+        # 各時刻ごとに処理
+        for t in range(max_length):
+            decoder_output, decoder_hidden = self.decoder(decoder_input, decoder_hidden)
+            decoder_outputs[t] = decoder_output
+            # 次の時刻のdecoderの入力を決定
+            if use_teacher_forcing and batch_Y is not None:  # teacher forceの場合、ターゲット系列を用いる
+                decoder_input = batch_Y[t].unsqueeze(0)
+            else:  # teacher forceでない場合、自身の出力を用いる
+                decoder_input = decoder_output.max(-1)[1]
+                
+        return decoder_outputs
+ ```
+ 
+訓練</br>
+```code
+# 訓練
+best_valid_bleu = 0.
+
+for epoch in range(1, num_epochs+1):
+    train_loss = 0.
+    train_refs = []
+    train_hyps = []
+    valid_loss = 0.
+    valid_refs = []
+    valid_hyps = []
+    # train
+    for batch in train_dataloader:
+        batch_X, batch_Y, lengths_X = batch
+        loss, gold, pred = compute_loss(
+            batch_X, batch_Y, lengths_X, model, optimizer, 
+            is_train=True
+            )
+        train_loss += loss
+        train_refs += gold
+        train_hyps += pred
+    # valid
+    for batch in valid_dataloader:
+        batch_X, batch_Y, lengths_X = batch
+        loss, gold, pred = compute_loss(
+            batch_X, batch_Y, lengths_X, model, 
+            is_train=False
+            )
+        valid_loss += loss
+        valid_refs += gold
+        valid_hyps += pred
+    # 損失をサンプル数で割って正規化
+    train_loss = np.sum(train_loss) / len(train_dataloader.data)
+    valid_loss = np.sum(valid_loss) / len(valid_dataloader.data)
+    # BLEUを計算
+    train_bleu = calc_bleu(train_refs, train_hyps)
+    valid_bleu = calc_bleu(valid_refs, valid_hyps)
+
+    # validationデータでBLEUが改善した場合にはモデルを保存
+    if valid_bleu > best_valid_bleu:
+        ckpt = model.state_dict()
+        torch.save(ckpt, ckpt_path)
+        best_valid_bleu = valid_bleu
+
+    print('Epoch {}: train_loss: {:5.2f}  train_bleu: {:2.2f}  valid_loss: {:5.2f}  valid_bleu: {:2.2f}'.format(
+            epoch, train_loss, train_bleu, valid_loss, valid_bleu))
+        
+    print('-'*80)
 ```
+<img width="475" alt="image" src="https://user-images.githubusercontent.com/57135683/148737204-60ae8f13-5a34-429f-a406-101b6bd5b6bd.png"></br>
+
+評価</br>
+```code
+# BLEUの計算
+test_dataloader = DataLoader(test_X, test_Y, batch_size=1, shuffle=False)
+refs_list = []
+hyp_list = []
+
+for batch in test_dataloader:
+    batch_X, batch_Y, lengths_X = batch
+    pred_Y = model(batch_X, lengths_X, max_length=20)
+    pred = pred_Y.max(dim=-1)[1].view(-1).data.cpu().tolist()
+    refs = batch_Y.view(-1).data.cpu().tolist()
+    refs_list.append(refs)
+    hyp_list.append(pred)
+bleu = calc_bleu(refs_list, hyp_list)
+print(bleu)
+```
+<img width="99" alt="image" src="https://user-images.githubusercontent.com/57135683/148737292-da2a0b56-c3b3-4f0c-b304-f646db16a84e.png"></br>
 
 </br>
 
@@ -829,6 +952,7 @@ Word2Vectの活用事例としては、
 - レコメンドの分析
 - レビュー分析
 - 機械翻訳
+- 質疑応答システム  
 等がある。
 
 # 7.Attention Mechanism
@@ -846,3 +970,5 @@ Seq2seqは２単語でも１００単語でも、固定次元ベクトルの中�
 　VHREDは、HREDが文脈に対して当たり障りのない返答しかできなくなった際の解決策。</br>
 
 </br>
+
+## 7-3.関連記事
